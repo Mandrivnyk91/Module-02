@@ -1,0 +1,32 @@
+{{- range $name, $u := .Values.users }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $name }}
+  namespace: {{ $u.namespace }}
+{{- range $u.grants }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ $name }}-{{ .ruleset }}
+  namespace: {{ .namespace }}
+rules:
+{{- toYaml (index $.Values.rulesets .ruleset) | nindent 2 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ $name }}-{{ .ruleset }}
+  namespace: {{ .namespace }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ $name }}
+    namespace: {{ $u.namespace }}
+roleRef:
+  kind: Role
+  name: {{ $name }}-{{ .ruleset }}
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
+{{- end }}
