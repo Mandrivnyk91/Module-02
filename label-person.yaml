@@ -5,7 +5,7 @@ metadata:
 spec:
   background: false
   rules:
-    - name: validate-readOnlyRootFilesystem
+    - name: mutate-person-label-student
       match:
         any:
           - resources:
@@ -27,7 +27,7 @@ metadata:
 spec:
   background: false
   rules:
-    - name: validate-readOnlyRootFilesystem
+    - name: mutate-person-label-mentor
       match:
         any:
           - resources:

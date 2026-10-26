@@ -1,0 +1,41 @@
+namespaces:
+  - nsmentor
+  - nsstudent01
+  - nsstudent02
+  - nsstudent03
+
+rulesets:
+  rw:
+    - apiGroups: ["*"]
+      resources: ["*"]
+      verbs: ["*"]
+  ro:
+    - apiGroups: [""]
+      resources: ["*"]
+      verbs: ["get", "list", "watch"]
+
+users:
+  mentor:
+    namespace: nsmentor
+    grants:
+      - { namespace: nsmentor, ruleset: rw }
+      - { namespace: nsstudent01, ruleset: rw }
+      - { namespace: nsstudent02, ruleset: rw }
+      - { namespace: nsstudent03, ruleset: rw }
+  student01:
+    namespace: nsstudent01
+    grants:
+      - { namespace: nsstudent01, ruleset: rw }
+  student02:
+    namespace: nsstudent02
+    grants:
+      - { namespace: nsstudent01, ruleset: ro }
+      - { namespace: default, ruleset: ro }
+  student03:
+    namespace: nsstudent03
+    grants:
+      - { namespace: nsstudent03, ruleset: rw }
+
+person:
+  student: [nsstudent01, nsstudent02, nsstudent03]
+  mentor:  [nsmentor]
