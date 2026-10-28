@@ -4,6 +4,8 @@ resource "helm_release" "argocd" {
   chart            = "argo-cd"
   namespace        = "argocd"
   create_namespace = true
+
+  values = [file("./argocd.yaml")]
 }
 
 resource "helm_release" "kyverno" {
