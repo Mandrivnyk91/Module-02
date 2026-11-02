@@ -1,0 +1,21 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: add-sidecar-istio
+spec:
+  background: false
+  rules:
+    - name: add-sidecar-istio
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              selector:
+                matchLabels:
+                  person: student
+      mutate:
+        patchStrategicMerge:
+          metadata:
+            annotations:
+              sidecar.istio.io/inject: "true"
