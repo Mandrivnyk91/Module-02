@@ -1,0 +1,150 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-readonly-root-filesystem-alert
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  student-monitoring.json: |
+    {
+        "apiVersion": 1,
+        "groups": [
+            {
+                "orgId": 1,
+                "name": "Warning",
+                "folder": "Alerts",
+                "interval": "1m",
+                "rules": [
+                    {
+                        "uid": "cg38kihelp7nkc",
+                        "title": "readonly root filesystem",
+                        "condition": "C",
+                        "data": [
+                            {
+                                "refId": "A",
+                                "queryType": "range",
+                                "relativeTimeRange": {
+                                    "from": 1800,
+                                    "to": 0
+                                },
+                                "datasourceUid": "loki",
+                                "model": {
+                                    "datasource": {
+                                        "type": "loki",
+                                        "uid": "loki"
+                                    },
+                                    "editorMode": "code",
+                                    "expr": "sum(\r\n  count_over_time(\r\n    {job=\"integrations/kubernetes/events\"}\r\n    |= \"require-ro-rootfs\"\r\n    [1m]\r\n  )\r\n)",
+                                    "instant": true,
+                                    "intervalMs": 1000,
+                                    "maxDataPoints": 43200,
+                                    "queryType": "range",
+                                    "refId": "A"
+                                }
+                            },
+                            {
+                                "refId": "reducer",
+                                "queryType": "expression",
+                                "relativeTimeRange": {
+                                    "from": 0,
+                                    "to": 0
+                                },
+                                "datasourceUid": "__expr__",
+                                "model": {
+                                    "conditions": [
+                                        {
+                                            "evaluator": {
+                                                "params": [
+                                                    0,
+                                                    0
+                                                ],
+                                                "type": "gt"
+                                            },
+                                            "operator": {
+                                                "type": "and"
+                                            },
+                                            "query": {
+                                                "params": []
+                                            },
+                                            "reducer": {
+                                                "params": [],
+                                                "type": "avg"
+                                            },
+                                            "type": "query"
+                                        }
+                                    ],
+                                    "datasource": {
+                                        "name": "Expression",
+                                        "type": "__expr__",
+                                        "uid": "__expr__"
+                                    },
+                                    "expression": "A",
+                                    "intervalMs": 1000,
+                                    "maxDataPoints": 43200,
+                                    "reducer": "last",
+                                    "refId": "reducer",
+                                    "type": "reduce"
+                                }
+                            },
+                            {
+                                "refId": "C",
+                                "queryType": "expression",
+                                "relativeTimeRange": {
+                                    "from": 0,
+                                    "to": 0
+                                },
+                                "datasourceUid": "__expr__",
+                                "model": {
+                                    "conditions": [
+                                        {
+                                            "evaluator": {
+                                                "params": [
+                                                    0
+                                                ],
+                                                "type": "gt"
+                                            },
+                                            "operator": {
+                                                "type": "and"
+                                            },
+                                            "query": {
+                                                "params": [
+                                                    "C"
+                                                ]
+                                            },
+                                            "reducer": {
+                                                "params": [],
+                                                "type": "last"
+                                            },
+                                            "type": "query"
+                                        }
+                                    ],
+                                    "datasource": {
+                                        "type": "__expr__",
+                                        "uid": "__expr__"
+                                    },
+                                    "expression": "reducer",
+                                    "intervalMs": 1000,
+                                    "maxDataPoints": 43200,
+                                    "refId": "C",
+                                    "type": "threshold"
+                                }
+                            }
+                        ],
+                        "noDataState": "NoData",
+                        "execErrState": "Error",
+                        "for": "1m",
+                        "keepFiringFor": "1m",
+                        "annotations": {
+                            "summary": "Warning: policy require-ro-rootfs.validate-readOnlyRootFilesystem: validation error: Root filesystem must be read-only. rule validate-readOnlyRootFilesystem failed at path /spec/containers/0/securityContext/"
+                        },
+                        "labels": {},
+                        "isPaused": false,
+                        "notification_settings": {
+                            "receiver": "empty"
+                        }
+                    }
+                ]
+            }
+        ]
+    }
