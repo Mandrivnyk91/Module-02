@@ -1,61 +1,3 @@
-# terraform {
-#   required_version = ">= 1.5"
-
-#   required_providers {
-#     helm = {
-#       source  = "hashicorp/helm"
-#       version = "~> 2.17"
-#     }
-#     kubernetes = {
-#       source  = "hashicorp/kubernetes"
-#       version = "~> 2.35"
-#     }
-#   }
-# }
-
-# variable "kubeconfig_path" {
-#   type    = string
-#   default = "~/.kube/config"
-# }
-
-# variable "kube_context" {
-#   type    = string
-#   default = null
-# }
-
-# variable "namespace" {
-#   type    = string
-#   default = "monitoring"
-# }
-
-# # Закріпіть версії чартів після першого успішного деплою (helm search repo --versions)
-# variable "kps_chart_version" {
-#   type    = string
-#   default = null
-# }
-
-# variable "loki_chart_version" {
-#   type    = string
-#   default = null
-# }
-
-# variable "alloy_chart_version" {
-#   type    = string
-#   default = null
-# }
-
-# provider "kubernetes" {
-#   config_path    = var.kubeconfig_path
-#   config_context = var.kube_context
-# }
-
-# provider "helm" {
-#   kubernetes {
-#     config_path    = var.kubeconfig_path
-#     config_context = var.kube_context
-#   }
-# }
-
 locals {
   loki_url         = "http://loki.monitoring.svc.cluster.local:3100"
   alertmanager_url = "http://kube-prometheus-stack-alertmanager.monitoring.svc.cluster.local:9093"
@@ -230,45 +172,6 @@ resource "helm_release" "alloy" {
 
   depends_on = [helm_release.loki]
 }
-
-# resource "kubernetes_config_map_v1" "loki_rules_kyverno" {
-#   metadata {
-#     name      = "loki-rules-kyverno"
-#     namespace = "monitoring"
-#     labels = {
-#       loki_rule = "1"
-#     }
-#     annotations = {
-#       # auth_enabled=false => tenant "fake"
-#       "k8s-sidecar-target-directory" = "/rules/fake"
-#     }
-#   }
-
-#   data = {
-#     "kyverno-rorfs.yaml" = <<-EOT
-#       groups:
-#         - name: kyverno-audit
-#           rules:
-#             - alert: KyvernoReadOnlyRootFsAuditFail
-#               expr: |
-#                 sum(
-#                   count_over_time(
-#                     {namespace="kyverno"}
-#                       |~ "(?i)validate-readOnlyRootFilesystem|Root filesystem must be read-only"
-#                     [5m]
-#                   )
-#                 ) > 0
-#               for: 0m
-#               labels:
-#                 severity: warning
-#               annotations:
-#                 summary: "Kyverno audit: readOnlyRootFilesystem check failed"
-#                 description: "Found errors readOnlyRootFilesystem."
-#     EOT
-#   }
-
-#   depends_on = [helm_release.loki]
-# }
 
 output "grafana_port_forward" {
   value = "kubectl -n monitoring port-forward svc/kube-prometheus-stack-grafana 3000:80"
