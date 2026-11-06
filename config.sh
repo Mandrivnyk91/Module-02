@@ -1,10 +1,13 @@
-U=student01
-NS=nsstudent01
-TOKEN=$(kubectl create token $U -n $NS --duration=24h)
-SERVER=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
-CA=$(kubectl config view --minify --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}')
+#!/bin/bash
+U=("student01" "student02" "student03" "mentor")
 
-cat > $U.kubeconfig <<EOF
+for user in "${U[@]}"
+do
+  TOKEN=$(kubectl create token $U -n ns$U --duration=24h)
+  SERVER=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+  CA=$(kubectl config view --minify --raw -o jsonpath='{.clusters[0].cluster.certificate-authority-data}')
+  
+  cat > $user.kubeconfig <<EOF
 apiVersion: v1
 kind: Config
 clusters:
@@ -13,14 +16,15 @@ clusters:
     server: ${SERVER}
     certificate-authority-data: ${CA}
 users:
-- name: ${U}
+- name: ${user}
   user:
     token: ${TOKEN}
 contexts:
-- name: ${U}
+- name: ${user}
   context:
     cluster: cluster
-    user: ${U}
-    namespace: ${NS}
-current-context: ${U}
+    user: ${user}
+    namespace: ns${user}
+current-context: ${user}
 EOF
+done
